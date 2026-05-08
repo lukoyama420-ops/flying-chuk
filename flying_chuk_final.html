@@ -100,13 +100,6 @@ function playSound(type) {
         o2.stop(AC.currentTime + i*0.08 + 0.15);
       });
       return;
-    } else if (type === 'shield') {
-      o.type = 'sine';
-      o.frequency.setValueAtTime(200, AC.currentTime);
-      o.frequency.exponentialRampToValueAtTime(600, AC.currentTime + 0.3);
-      g.gain.setValueAtTime(0.12, AC.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + 0.3);
-      o.start(); o.stop(AC.currentTime + 0.3);
     }
   } catch(e) {}
 }
@@ -189,18 +182,7 @@ function drawConfetti() {
   confetti = confetti.filter(p=>p.life>0 && p.y<BASE_H+20);
 }
 
-function drawShield() {
-  if (shieldCooldown <= 0) return;
-  // Мигаем в начале игры показывая неуязвимость
-  if (Math.floor(frame / 8) % 2 === 0) return;
-  ctx.save();
-  ctx.strokeStyle = 'rgba(100,200,255,0.5)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(80, by, 28, 0, Math.PI*2);
-  ctx.stroke();
-  ctx.restore();
-}
+
 
 function spawnFire() {
   scoreFire = 60; // горит 60 кадров
