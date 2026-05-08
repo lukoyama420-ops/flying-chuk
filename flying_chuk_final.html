@@ -55,14 +55,12 @@ let state = 'idle';
 let by, bvy, score, best, pipes, lastSpawn, frame;
 best = parseInt(localStorage.getItem('chuk_best') || '0');
 let speed = 1.0;       // множитель скорости
-let shield = false;    // щит активен
-let shieldUsed = false; // использован ли щит
+    // щит активен
+let  // использован ли щит
 let bonusPipes = [];   // золотые бутылки
 let confetti = [];     // конфетти при рекорде
 let explosions = [];   // взрывы при смерти
 let isNewRecord = false;
-let shieldCooldown = 0;
-let shield = false;
 
 // Звуки
 const AC = new (window.AudioContext || window.webkitAudioContext)();
@@ -253,7 +251,7 @@ function initGame() {
   lastSpawn = 0;
   frame = 0;
   speed = 1.0;
-  shieldCooldown = 180; // 3 секунды неуязвимости в начале
+   // 3 секунды неуязвимости в начале
   confetti = [];
   explosions = [];
   isNewRecord = false;
@@ -576,8 +574,11 @@ function loop(ts) {
     }
 
     // Коллизия
-    if (shieldCooldown > 0) {
-      shieldCooldown--;
+    if (checkCollision()) {
+      state = 'dead';
+      spawnExplosion(80, by);
+      playSound('die');
+    }
     } else if (checkCollision()) {
       state = 'dead';
       spawnExplosion(80, by);
@@ -602,7 +603,6 @@ function loop(ts) {
   drawExplosions();
   drawConfetti();
   if (state === 'play') {
-    drawShield();
     drawFire();
     drawScore();
 
