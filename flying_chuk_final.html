@@ -583,14 +583,16 @@ function loop(ts) {
     }
 
     // Коллизия
-    if (checkCollision()) {
-      if (shield && !shieldCooldown) {
+    if (checkCollision() && !shieldCooldown) {
+      if (shield) {
         shield = false;
-        shieldCooldown = 60; // 60 кадров неуязвимости после щита
+        shieldCooldown = 90;
         playSound('shield');
-        bvy = JUMP_VEL; // сильный отскок вверх
-        spawnExplosion(80, by); // небольшой взрыв
-      } else if (!shieldCooldown) {
+        bvy = JUMP_VEL;
+        // Выталкиваем птицу из зоны столкновения
+        by = Math.max(40, Math.min(BASE_H - 80, by - 40));
+        spawnExplosion(80, by);
+      } else {
         state = 'dead';
         spawnExplosion(80, by);
         playSound('die');
