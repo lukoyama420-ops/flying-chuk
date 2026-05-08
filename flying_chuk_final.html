@@ -102,8 +102,13 @@ const wrap=document.querySelector('.wrap');
 
 // Размеры — подстраиваемся под экран
 function resize(){
-  cv.width=wrap.offsetWidth;
-  cv.height=wrap.offsetHeight;
+  const dpr = window.devicePixelRatio || 1;
+  const rect = wrap.getBoundingClientRect();
+  cv.width = rect.width * dpr;
+  cv.height = rect.height * dpr;
+  cv.style.width = rect.width + 'px';
+  cv.style.height = rect.height + 'px';
+  ctx.scale(dpr, dpr);
 }
 resize();
 window.addEventListener('resize',()=>{resize();});
@@ -306,15 +311,12 @@ function drawParts(){
 }
 
 function hit(){
-  // Используем только центральную точку персонажа
   const cx=bird.x, cy=bird.y;
   const h=H();
-  if(cy>h-65||cy<5)return true;
+  if(cy>h-60||cy<0)return true;
   for(const p of pipes){
-    // Зона X: только центральная часть бутылки
-    if(cx>p.x+16&&cx<p.x+PW-16){
-      // Зона Y: выше зазора или ниже зазора
-      if(cy<p.topH+8||cy>p.topH+GAP-8)return true;
+    if(cx>p.x+20&&cx<p.x+PW-20){
+      if(cy<p.topH+10||cy>p.topH+GAP-10)return true;
     }
   }
   return false;
