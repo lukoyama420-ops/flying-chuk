@@ -6,16 +6,18 @@
 <title>FLYING CHUK</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; overflow:hidden; background:#12123a; touch-action:none; }
+html, body { width:100%; height:100%; overflow:hidden; background:#0e0e2e; touch-action:none; }
 body { display:flex; align-items:center; justify-content:center; }
-canvas { display:block; touch-action:none; image-rendering:pixelated; }
+canvas { display:block; touch-action:none; image-rendering:auto; -webkit-image-rendering:auto; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
 <script>
 const cv = document.getElementById('c');
-const ctx = cv.getContext('2d');
+const ctx = cv.getContext('2d', { alpha: false });
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = 'high';
 
 // Фиксированный размер как Flappy Bird — подгоняем под экран
 const BASE_W = 360;
@@ -23,11 +25,15 @@ const BASE_H = 640;
 let scale = 1;
 
 function resize() {
+  const dpr = window.devicePixelRatio || 1;
   scale = Math.min(window.innerWidth / BASE_W, window.innerHeight / BASE_H);
-  cv.width = BASE_W;
-  cv.height = BASE_H;
+  // Рендерим в высоком разрешении для Retina
+  cv.width = Math.floor(BASE_W * scale * dpr);
+  cv.height = Math.floor(BASE_H * scale * dpr);
   cv.style.width = Math.floor(BASE_W * scale) + 'px';
   cv.style.height = Math.floor(BASE_H * scale) + 'px';
+  // Масштабируем контекст под DPR
+  ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
 }
 resize();
 window.addEventListener('resize', resize);
@@ -56,6 +62,7 @@ let confetti = [];     // конфетти при рекорде
 let explosions = [];   // взрывы при смерти
 let isNewRecord = false;
 let shieldCooldown = 0;
+let shield = false;
 
 // Звуки
 const AC = new (window.AudioContext || window.webkitAudioContext)();
@@ -185,27 +192,15 @@ function drawConfetti() {
 }
 
 function drawShield() {
+  if (shieldCooldown <= 0) return;
+  // Мигаем в начале игры показывая неуязвимость
+  if (Math.floor(frame / 8) % 2 === 0) return;
   ctx.save();
-  if (shield) {
-    // Щит активен — синее кольцо
-    ctx.strokeStyle = `rgba(100,200,255,${0.6+Math.sin(frame*0.12)*0.3})`;
-    ctx.lineWidth = 2.5;
-    ctx.shadowColor = 'rgba(100,200,255,0.9)';
-    ctx.shadowBlur = 12;
-    ctx.beginPath();
-    ctx.arc(80, by, 28, 0, Math.PI*2);
-    ctx.stroke();
-  } else if (shieldCooldown > 0) {
-    // Неуязвимость — мигает белым
-    if (Math.floor(shieldCooldown / 6) % 2 === 0) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(80, by, 28, 0, Math.PI*2);
-      ctx.stroke();
-    }
-  }
-  ctx.shadowBlur = 0;
+  ctx.strokeStyle = 'rgba(100,200,255,0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(80, by, 28, 0, Math.PI*2);
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -258,9 +253,7 @@ function initGame() {
   lastSpawn = 0;
   frame = 0;
   speed = 1.0;
-  shield = true;
-  shieldUsed = false;
-  shieldCooldown = 0;
+  shieldCooldown = 180; // 3 секунды неуязвимости в начале
   confetti = [];
   explosions = [];
   isNewRecord = false;
@@ -548,7 +541,7 @@ function drawDead() {
 
 function loop(ts) {
   frame++;
-  ctx.clearRect(0, 0, BASE_W, BASE_H);
+  ctx.clearRect(0, 0, BASE_W, BASE_H); // DPR handled by transform
   drawBg();
 
   if (state === 'play') {
@@ -583,20 +576,13 @@ function loop(ts) {
     }
 
     // Коллизия
-    if (checkCollision()) {
-      if (shield && !shieldCooldown) {
-        shield = false;
-        shieldCooldown = 60; // 60 кадров неуязвимости после щита
-        playSound('shield');
-        bvy = JUMP_VEL; // сильный отскок вверх
-        spawnExplosion(80, by); // небольшой взрыв
-      } else if (!shieldCooldown) {
-        state = 'dead';
-        spawnExplosion(80, by);
-        playSound('die');
-      }
+    if (shieldCooldown > 0) {
+      shieldCooldown--;
+    } else if (checkCollision()) {
+      state = 'dead';
+      spawnExplosion(80, by);
+      playSound('die');
     }
-    if (shieldCooldown > 0) shieldCooldown--;
 
     // Огонь
     updateFire();
@@ -619,12 +605,7 @@ function loop(ts) {
     drawShield();
     drawFire();
     drawScore();
-    // Иконка щита
-    if (shield) {
-      ctx.font = '18px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText('🛡️', 12, 55);
-    }
+
     // Иконка скорости
     if (speed > 1.3) {
       ctx.fillStyle = '#ff6644';
