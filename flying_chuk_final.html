@@ -306,13 +306,19 @@ function drawParts(){
 }
 
 function hit(){
-  const bx=bird.x-10,by=bird.y-8,bw=20,bh=16;
+  // Используем только центральную точку персонажа
+  const cx=bird.x, cy=bird.y;
   const h=H();
-  if(by+bh>h-55||by<-5)return true;
+  if(cy>h-65||cy<5)return true;
   for(const p of pipes){
-    if(bx+bw>p.x+28&&bx<p.x+PW-28){
-      if(by<p.topH||by+bh>p.topH+GAP)return true;
+    // Зона X: только центральная часть бутылки
+    if(cx>p.x+16&&cx<p.x+PW-16){
+      // Зона Y: выше зазора или ниже зазора
+      if(cy<p.topH+8||cy>p.topH+GAP-8)return true;
     }
+  }
+  return false;
+}
   }
   return false;
 }
