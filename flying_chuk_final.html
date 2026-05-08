@@ -560,11 +560,6 @@ function loop(ts) {
       spawnExplosion(80, by);
       playSound('die');
     }
-    } else if (checkCollision()) {
-      state = 'dead';
-      spawnExplosion(80, by);
-      playSound('die');
-    }
 
     // Огонь
     updateFire();
@@ -600,6 +595,7 @@ function loop(ts) {
   if (state === 'dead') drawDead();
 
   requestAnimationFrame(loop);
+}
 }
 
 // Тап / клик на весь экран
