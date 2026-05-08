@@ -113,7 +113,11 @@ var GROUND = H - 50; // пол
 var state = 'idle'; // idle, play, dead
 var bx = 60, by, bvy;
 var score, best, pipes, lastPipe, fr, fireTick;
-best = parseInt(localStorage.getItem('chuk_best')||'0');
+try {
+  best = parseInt(localStorage.getItem('chuk_best') || '0');
+} catch(e) {
+  best = 0;
+}
 
 // Огненные частицы
 var fireP = [];
