@@ -306,11 +306,11 @@ function drawParts(){
 }
 
 function hit(){
-  const bx=bird.x-14,by=bird.y-12,bw=26,bh=22;
+  const bx=bird.x-10,by=bird.y-8,bw=20,bh=16;
   const h=H();
   if(by+bh>h-55||by<-5)return true;
   for(const p of pipes){
-    if(bx+bw>p.x+22&&bx<p.x+PW-22){
+    if(bx+bw>p.x+28&&bx<p.x+PW-28){
       if(by<p.topH||by+bh>p.topH+GAP)return true;
     }
   }
