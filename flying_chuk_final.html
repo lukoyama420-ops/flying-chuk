@@ -568,7 +568,9 @@ function loop(ts) {
 
     // Огонь
     updateFire();
-  } else if (state === 'idle') {
+  }
+
+  if (state === 'idle') {
     by = BASE_H / 2 + Math.sin(ts * 0.003) * 12;
   }
 
