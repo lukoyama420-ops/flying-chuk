@@ -367,19 +367,25 @@ function drawBottleShape(x, y, h) {
 }
 
 const bgImg = new Image();
+bgImg.onload = function() { console.log('bg loaded'); };
+bgImg.onerror = function() { console.log('bg error'); };
 bgImg.src = 'bg.jpg';
 
 function drawBg() {
-  if (bgImg.complete && bgImg.naturalWidth > 0) {
-    ctx.drawImage(bgImg, 0, 0, BASE_W, BASE_H);
-  } else {
-    ctx.fillStyle = '#0e0e2e';
+  try {
+    if (bgImg.complete && bgImg.naturalWidth > 0) {
+      ctx.drawImage(bgImg, 0, 0, BASE_W, BASE_H);
+    } else {
+      ctx.fillStyle = '#0a0a1e';
+      ctx.fillRect(0, 0, BASE_W, BASE_H);
+    }
+  } catch(e) {
+    ctx.fillStyle = '#0a0a1e';
     ctx.fillRect(0, 0, BASE_W, BASE_H);
   }
-  // Пол
-  ctx.fillStyle = 'rgba(0,0,15,0.85)';
+  ctx.fillStyle = 'rgba(0,0,15,0.8)';
   ctx.fillRect(0, BASE_H - 50, BASE_W, 50);
-  ctx.fillStyle = 'rgba(20,10,40,0.9)';
+  ctx.fillStyle = 'rgba(20,10,50,0.9)';
   ctx.fillRect(0, BASE_H - 50, BASE_W, 6);
 }
 
